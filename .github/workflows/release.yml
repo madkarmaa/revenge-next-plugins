@@ -1,11 +1,8 @@
-# A plugin is released when the published pool doesn't have `<id>@<version>.zip` for its manifest version.
-# The pool contains all relevant data. Git tags and GitHub releases are created for changelogs only.
-
 name: Release plugins
 
 on:
     push:
-        branches: [main]
+        branches: [dev]
     workflow_dispatch:
 
 concurrency:
@@ -21,50 +18,56 @@ env:
     # Set the PAGES_BASE_URL repository variable when the pool is served from a custom domain.
     PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
     POOL_REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
-    PLAN: ${{ github.workspace }}/releases.json
 
 jobs:
     release:
+        if: (github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch') || (github.ref == 'refs/heads/dev' && github.event_name == 'push')
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
               with:
-                  fetch-depth: 0 # Existing tags, so a re-run doesn't try to recreate one.
+                  fetch-depth: 0
 
             - uses: oven-sh/setup-bun@v2
+            - uses: actions/setup-node@v4
+              with:
+                  node-version: 24
             - uses: actions/setup-java@v4
               with:
                   distribution: temurin
                   java-version: 25
 
-            - run: bun install
+            - run: bun install --frozen-lockfile
 
             - name: Check out the published pool
               run: .github/scripts/checkout-pool.sh
 
-            - name: Plan releases
-              id: plan
-              run: .github/scripts/plan-releases.sh
-
-            - name: Build plugins
-              if: steps.plan.outputs.count != '0'
-              run: ./gradlew --no-daemon packageAllPlugins
-              env:
-                  GITHUB_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }} # For Gradle to download the API dependency.
-
-            - name: Publish to the pool
-              if: steps.plan.outputs.count != '0'
-              run: .github/scripts/publish-pool.sh
-
-            - name: Tag and write changelogs
-              if: steps.plan.outputs.count != '0'
+            - name: Release changed plugins
+              id: release
+              run: bun run release
               env:
                   GH_TOKEN: ${{ github.token }}
-              run: .github/scripts/tag-releases.sh
+                  GITHUB_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }} # For Gradle to download the API dependency.
+                  HUSKY: 0
 
             - name: Update README plugin list
               if: github.ref == 'refs/heads/main'
               run: .github/scripts/update-readme.sh
+
+            - name: Sync dev with main
+              if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+              run: |
+                  git fetch origin main
+                  git config user.name 'github-actions[bot]'
+                  git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+                  if git ls-remote --exit-code --heads origin dev > /dev/null; then
+                      git fetch origin dev
+                      git switch -C dev origin/dev
+                      git -c core.hooksPath=/dev/null merge --no-edit -m 'chore: sync stable release to dev [skip ci]' origin/main
+                  else
+                      git switch -C dev origin/main
+                  fi
+                  git push origin dev
 
             - name: Upload GitHub Pages artifact
               uses: actions/upload-pages-artifact@v4
@@ -73,7 +76,6 @@ jobs:
 
     deploy:
         needs: release
-        if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         permissions:
             contents: read

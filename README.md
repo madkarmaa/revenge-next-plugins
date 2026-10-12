@@ -12,9 +12,13 @@ https://revenge.madkarma.top/index.json
 
 ## Plugins
 
+<!-- plugins:start -->
+
 | Plugin                            | Version | Description                                            | Authors          |
 | --------------------------------- | ------- | ------------------------------------------------------ | ---------------- |
 | [Clean URLs](plugins/clean-urls/) | 1.0.0   | Removes tracking garbage from links sent and received. | nexpid, MadKarma |
+
+<!-- plugins:end -->
 
 ## Development
 

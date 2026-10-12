@@ -62,6 +62,10 @@ jobs:
                   GH_TOKEN: ${{ github.token }}
               run: .github/scripts/tag-releases.sh
 
+            - name: Update README plugin list
+              if: github.ref == 'refs/heads/main'
+              run: .github/scripts/update-readme.sh
+
             - name: Upload GitHub Pages artifact
               uses: actions/upload-pages-artifact@v4
               with:

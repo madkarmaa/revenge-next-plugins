@@ -1,0 +1,20 @@
+{
+    "format": 1,
+    "id": "madkarma.clean-urls",
+    "name": "Clean URLs",
+    "description": "Removes tracking garbage from links sent and received.",
+    "author": "nexpid, MadKarma",
+    "icon": "LinkIcon",
+    "version": "1.0.0",
+    "dependencies": {
+        "revenge.api": {
+            "version": ">=1 <2"
+        },
+        "discord": {
+            "version": "*"
+        }
+    },
+    "dist": {
+        "script": "index.js"
+    }
+}

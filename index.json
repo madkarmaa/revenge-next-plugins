@@ -9,13 +9,26 @@
       "author": "nexpid, MadKarma",
       "icon": "LinkIcon",
       "channels": {
-        "beta": "1.0.0-dev1"
+        "latest": "1.0.0"
       },
       "versions": {
         "1.0.0-dev1": {
           "url": "https://revenge.madkarma.top/pool/madkarma.clean-urls@1.0.0-dev1.zip",
           "sha256": "d16397d0eaa0afd7de382956ab4b7cf9bbd099d51b8bd3f7665af73d5c6e3bc1",
           "size": 2195,
+          "dependencies": {
+            "revenge.api": {
+              "version": ">=1 <2"
+            },
+            "discord": {
+              "version": "*"
+            }
+          }
+        },
+        "1.0.0": {
+          "url": "https://revenge.madkarma.top/pool/madkarma.clean-urls@1.0.0.zip",
+          "sha256": "fadbc174f889b5488196e1de0e4fe46786f885a0ab710e618d328594243bdfdf",
+          "size": 2196,
           "dependencies": {
             "revenge.api": {
               "version": ">=1 <2"

@@ -1,8 +1,11 @@
+# A plugin is released when the published pool doesn't have `<id>@<version>.zip` for its manifest version.
+# The pool contains all relevant data. Git tags and GitHub releases are created for changelogs only.
+
 name: Release plugins
 
 on:
     push:
-        branches: [dev]
+        branches: [main]
     workflow_dispatch:
 
 concurrency:
@@ -20,20 +23,18 @@ env:
     # Set the PAGES_BASE_URL repository variable when the pool is served from a custom domain.
     PAGES_BASE_URL: ${{ vars.PAGES_BASE_URL }}
     POOL_REMOTE: https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git
+    PLAN: ${{ github.workspace }}/releases.json
 
 jobs:
     release:
-        if: (github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch') || (github.ref == 'refs/heads/dev' && github.event_name == 'push')
+        if: github.ref == 'refs/heads/main'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
               with:
-                  fetch-depth: 0
+                  fetch-depth: 0 # Existing tags, so a re-run doesn't try to recreate one.
 
             - uses: oven-sh/setup-bun@v2
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 24
             - uses: actions/setup-java@v4
               with:
                   distribution: temurin
@@ -44,26 +45,36 @@ jobs:
             - name: Check out the published pool
               run: .github/scripts/checkout-pool.sh
 
-            - name: Release changed plugins
-              id: release
-              run: bun run release
+            - name: Plan releases
+              id: plan
+              run: .github/scripts/plan-releases.sh
+
+            - name: Build plugins
+              if: steps.plan.outputs.count != '0'
+              run: ./gradlew --no-daemon packageAllPlugins
               env:
-                  GH_TOKEN: ${{ github.token }}
                   GITHUB_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }} # For Gradle to download the API dependency.
-                  HUSKY: 0
 
             - name: Attest release artifacts
-              if: ${{ !cancelled() && hashFiles('build/release-artifacts/*.zip') != '' }}
+              if: steps.plan.outputs.count != '0'
               uses: actions/attest@v4
               with:
-                  subject-path: build/release-artifacts/*.zip
+                  subject-path: build/dist/*.zip
+
+            - name: Publish to the pool
+              if: steps.plan.outputs.count != '0'
+              run: .github/scripts/publish-pool.sh
+
+            - name: Tag and write changelogs
+              if: steps.plan.outputs.count != '0'
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: .github/scripts/tag-releases.sh
 
             - name: Update README plugin list
-              if: github.ref == 'refs/heads/main'
               run: .github/scripts/update-readme.sh
 
             - name: Sync dev with main
-              if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
               run: |
                   git fetch origin main
                   git config user.name 'github-actions[bot]'

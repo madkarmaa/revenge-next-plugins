@@ -8,7 +8,6 @@
         "generate-index": "revenge-plugin generate-index",
         "plan-releases": "revenge-plugin plan-releases",
         "serve": "revenge-plugin serve",
-        "release": "node .github/scripts/release.mjs",
         "lint": "prettier --check .",
         "format": "prettier --write .",
         "lint:types": "tsc --noEmit",
@@ -24,18 +23,12 @@
     "devDependencies": {
         "@commitlint/cli": "21.2.3",
         "@commitlint/config-conventional": "21.2.3",
-        "@semantic-release/commit-analyzer": "13.0.1",
-        "@semantic-release/git": "11.0.1",
-        "@semantic-release/github": "12.0.10",
-        "@semantic-release/release-notes-generator": "14.1.1",
         "@types/node": "^26.4.1",
         "@types/react": "^19.2.18",
-        "conventional-changelog-conventionalcommits": "9.3.1",
         "husky": "9.1.7",
         "lint-staged": "17.6.0",
         "prettier": "3.9.10",
         "react-native": "0.81.6",
-        "semantic-release": "25.0.9",
         "typescript": "^7.0.2"
     },
     "overrides": {

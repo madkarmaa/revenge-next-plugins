@@ -42,11 +42,9 @@ Run `bun run format` to format files.
 
 ## Releases
 
-Each plugin has its own version and tags, such as `clean-urls@1.2.0`. Versions follow Conventional Commits for changes to that plugin or shared files. Other changes use a patch bump.
+Set each plugin's `version` in `plugins/<name>/manifest.json` before releasing. Push to `main` or run **Release plugins** manually on `main`.
 
-Push to `dev` to publish prereleases and open a draft pull request to `main`. Run **Release plugins** manually on `main` to publish stable releases. The workflow updates stable manifest versions and this plugin list, then merges `main` back into `dev`.
-
-GitHub prereleases use versions such as `1.2.0-dev.1`. Plugin manifests and ZIPs use `1.2.0-dev1`, as required by the plugin tooling. The repository index exposes prereleases through its `beta` channel.
+The workflow publishes versions missing from the pool and skips versions already present. It creates tags and GitHub releases such as `clean-urls@1.2.0`, updates this plugin list, and syncs `dev` with `main`.
 
 Release ZIPs have GitHub artifact attestations. Verify a downloaded ZIP with:
 

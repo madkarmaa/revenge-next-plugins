@@ -260,7 +260,7 @@ val buildJs = tasks.register("buildJs") {
 
     // The bundler is @revenge-mod/plugin-cli, so the lockfiles (which pin its revision) are the inputs.
     inputs.files(
-        "package.json", "tsconfig.json", "biome.json",
+        "package.json", "tsconfig.json",
         "bun.lock", "bun.lockb", "package-lock.json", "deno.lock",
     ).withPropertyName("config")
     // Everything a plugin's bundle can be built from.

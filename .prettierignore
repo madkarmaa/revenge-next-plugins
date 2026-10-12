@@ -1,0 +1,10 @@
+.gradle/
+.kotlin/
+.husky/_/
+build/
+plugins/*/build/
+node_modules/
+local.properties
+bun.lock
+README.md
+LICENSE

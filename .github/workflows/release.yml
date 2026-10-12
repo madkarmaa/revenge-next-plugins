@@ -61,3 +61,24 @@ jobs:
               env:
                   GH_TOKEN: ${{ github.token }}
               run: .github/scripts/tag-releases.sh
+
+            - name: Upload GitHub Pages artifact
+              uses: actions/upload-pages-artifact@v4
+              with:
+                  path: published
+
+    deploy:
+        needs: release
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pages: write
+            id-token: write
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        steps:
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4

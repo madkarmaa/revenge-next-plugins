@@ -11,6 +11,8 @@ concurrency:
 
 permissions:
     contents: write
+    id-token: write
+    attestations: write
 
 env:
     # Branch holding the pool. Set the POOL_BRANCH repository variable to move it.
@@ -49,6 +51,12 @@ jobs:
                   GH_TOKEN: ${{ github.token }}
                   GITHUB_TOKEN: ${{ secrets.READ_PACKAGES_TOKEN }} # For Gradle to download the API dependency.
                   HUSKY: 0
+
+            - name: Attest release artifacts
+              if: ${{ !cancelled() && hashFiles('build/release-artifacts/*.zip') != '' }}
+              uses: actions/attest@v4
+              with:
+                  subject-path: build/release-artifacts/*.zip
 
             - name: Update README plugin list
               if: github.ref == 'refs/heads/main'

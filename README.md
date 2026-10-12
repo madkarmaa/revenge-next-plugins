@@ -48,6 +48,12 @@ Push to `dev` to publish prereleases and open a draft pull request to `main`. Ru
 
 GitHub prereleases use versions such as `1.2.0-dev.1`. Plugin manifests and ZIPs use `1.2.0-dev1`, as required by the plugin tooling. The repository index exposes prereleases through its `beta` channel.
 
+Release ZIPs have GitHub artifact attestations. Verify a downloaded ZIP with:
+
+```sh
+gh attestation verify path/to/plugin.zip --repo madkarmaa/revenge-next-plugins
+```
+
 ## License
 
 [GPL-3.0](LICENSE).
